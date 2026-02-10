@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sunday Funnies: A Little Secret</title>
+  <style>
+    :root{
+      --paper:#f6f0df;
+      --ink:#1f1f1f;
+      --accent:#c24b3a;
+      --panel:#ffffffcc;
+      --shadow: rgba(0,0,0,.12);
+    }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(0,0,0,.05) 0 1px, transparent 1px 6px),
+        radial-gradient(circle at 70% 60%, rgba(0,0,0,.04) 0 1px, transparent 1px 7px),
+        linear-gradient(0deg, rgba(0,0,0,.04), rgba(0,0,0,0)),
+        var(--paper);
+      color:var(--ink);
+      font-family: ui-serif, Georgia, "Times New Roman", serif;
+    }
+
+    .wrap{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 18px 50px;
+    }
+
+    .masthead{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:16px;
+      border: 3px solid var(--ink);
+      background: linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.35));
+      box-shadow: 6px 6px 0 var(--shadow);
+      padding: 14px 14px 10px;
+      border-radius: 10px;
+      position:relative;
+      overflow:hidden;
+    }
+    .masthead::after{
+      content:"";
+      position:absolute;
+      inset:-40px;
+      background:
+        repeating-linear-gradient(135deg, rgba(0,0,0,.04) 0 2px, transparent 2px 10px);
+      transform: rotate(-2deg);
+      pointer-events:none;
+    }
+
+    .title{ position:relative; z-index:1; line-height:1.0; }
+    .title .kicker{ font-size: 12px; letter-spacing: .18em; text-transform: uppercase; }
+    .title h1{ margin:6px 0 0; font-size: clamp(28px, 3.7vw, 44px); letter-spacing: .02em; }
+    .title .sub{ margin-top:4px; font-size: 14px; opacity:.85; }
+    .issue{ position:relative; z-index:1; text-align:right; font-size: 12px; line-height:1.3; opacity:.9; white-space:nowrap; }
+
+    .panel{
+      margin-top:18px;
+      background: var(--panel);
+      border: 3px solid var(--ink);
+      border-radius: 12px;
+      box-shadow: 6px 6px 0 var(--shadow);
+      padding: 18px;
+      position:relative;
+    }
+
+    .label{
+      font-size: 12px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      opacity:.85;
+      margin-bottom: 10px;
+    }
+
+    .bubble{
+      position:relative;
+      background: #fff;
+      border: 2px solid var(--ink);
+      border-radius: 18px;
+      padding: 12px 12px 10px;
+      box-shadow: 3px 3px 0 var(--shadow);
+      margin-bottom: 14px;
+      max-width: 650px;
+    }
+    .bubble:after{
+      content:"";
+      position:absolute;
+      left: 22px;
+      bottom:-12px;
+      width: 18px;
+      height: 18px;
+      background:#fff;
+      border-left: 2px solid var(--ink);
+      border-bottom: 2px solid var(--ink);
+      transform: rotate(45deg);
+    }
+
+    button{
+      cursor:pointer;
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: #fff;
+      font-weight: 700;
+      box-shadow: 3px 3px 0 var(--shadow);
+    }
+    button:hover{ transform: translateY(-1px); }
+    button:active{ transform: translateY(1px); box-shadow: 1px 1px 0 var(--shadow); }
+
+    .btn-accent{
+      background: linear-gradient(180deg, #ffefe9, #ffd9cf);
+    }
+
+    .letter{
+      display:none;
+      margin-top: 14px;
+      background: rgba(255,255,255,.9);
+      border: 2px solid var(--ink);
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 3px 3px 0 var(--shadow);
+    }
+    .letter.show{ display:block; }
+    .letter pre{
+      white-space: pre-wrap;
+      margin:0;
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    .stamp{
+      display:inline-block;
+      margin-left: 8px;
+      padding: 4px 10px;
+      border: 2px dashed var(--accent);
+      color: var(--accent);
+      border-radius: 10px;
+      transform: rotate(-4deg);
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+
+    /* ===== POPUP MODAL ===== */
+    .overlay{
+      position:fixed;
+      inset:0;
+      background: rgba(15,15,15,.45);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index: 50;
+    }
+    .overlay.show{ display:flex; }
+
+    .modal{
+      width:min(720px, 100%);
+      background: rgba(255,255,255,.92);
+      border: 3px solid var(--ink);
+      border-radius: 14px;
+      box-shadow: 10px 10px 0 var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .modal::after{
+      content:"";
+      position:absolute;
+      inset:-60px;
+      background: repeating-linear-gradient(135deg, rgba(0,0,0,.035) 0 2px, transparent 2px 12px);
+      transform: rotate(-2deg);
+      pointer-events:none;
+    }
+
+    .modal-inner{
+      position:relative;
+      z-index:1;
+      padding: 16px;
+    }
+
+    .modal-header{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      justify-content:space-between;
+      margin-bottom:10px;
+    }
+
+    .close{
+      background: transparent;
+      border: 2px solid var(--ink);
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      font-weight: 900;
+      line-height: 1;
+      box-shadow: 3px 3px 0 var(--shadow);
+    }
+
+    .question-bubble{
+      background:#fff;
+      border: 2px solid var(--ink);
+      border-radius: 18px;
+      padding: 12px;
+      box-shadow: 3px 3px 0 var(--shadow);
+      position:relative;
+    }
+    .question-bubble:after{
+      content:"";
+      position:absolute;
+      right: 28px;
+      bottom:-12px;
+      width: 18px;
+      height: 18px;
+      background:#fff;
+      border-right: 2px solid var(--ink);
+      border-bottom: 2px solid var(--ink);
+      transform: rotate(45deg);
+    }
+
+    .modal .meta{
+      font-size: 12px;
+      opacity:.8;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .input{
+      margin-top: 10px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    input[type="text"]{
+      flex: 1 1 260px;
+      padding: 10px 10px;
+      border: 2px solid var(--ink);
+      border-radius: 10px;
+      background: rgba(255,255,255,.9);
+      font-size: 16px;
+      outline:none;
+    }
+    input[type="text"]:focus{
+      box-shadow: 0 0 0 3px rgba(194,75,58,.18);
+    }
+
+    .feedback{
+      margin-top: 10px;
+      min-height: 20px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="masthead">
+      <div class="title">
+        <div class="kicker">Sunday Funnies • Secret Edition</div>
+        <h1>A Tiny Gate to a Big Letter</h1>
+        <div class="sub">A pop-up quiz… for the real you.</div>
+      </div>
+      <div class="issue">
+        <div><strong>Issue:</strong> #<span id="issueNo"></span></div>
+        <div><strong>Printed:</strong> <span id="printedOn"></span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="label">Panel 1 — Knock, knock</div>
+
+      <div class="bubble">
+        <strong>psst…</strong> there’s a letter in here, but it only opens for one person.
+      </div>
+
+      <button class="btn-accent" id="startBtn">Start the Pop-Up Questions</button>
+
+      <div id="result" style="margin-top:12px;font-size:14px;min-height:22px;"></div>
+
+      <div class="letter" id="letter">
+        <div class="label">Panel 2 — The Letter</div>
+        <pre id="letterText"></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP -->
+  <div class="overlay" id="overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-inner">
+        <div class="modal-header">
+          <div>
+            <div class="meta" id="modalTitle">Security Question</div>
+            <div style="font-size:14px;opacity:.85" id="stepLabel"></div>
+          </div>
+          <button class="close" id="closeBtn" aria-label="Close">×</button>
+        </div>
+
+        <div class="question-bubble" id="questionText"></div>
+
+        <div class="input">
+          <input id="answerInput" type="text" placeholder="type your answer…" autocomplete="off" />
+          <button class="btn-accent" id="nextBtn">Next</button>
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---- EDIT THESE ----
+    const QUESTIONS = [
+      { id: "q1", prompt: "1) What’s the nickname you call me?", answer: "pumpkin" },
+      { id: "q2", prompt: "2) Where did we first meet (or first *really* talk)?", answer: "the coffee shop" },
+      { id: "q3", prompt: "3) What’s our “one word” joke?", answer: "bananas" }
+    ];
+
+    const LOVE_LETTER = `Dear you,
+
+This is where I write something soft and ridiculous and true.
+I’m grateful for you in the small ways and the big ways —
+the kind that show up in ordinary days and somehow make them glow.
+
+Love,
+Me`;
+    // --------------------
+
+    const norm = (s) => (s ?? "")
+      .toString()
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, " ");
+
+    // header bits
+    const d = new Date();
+    document.getElementById("printedOn").textContent =
+      d.toLocaleDateString(undefined, { year:"numeric", month:"long", day:"numeric" });
+    document.getElementById("issueNo").textContent =
+      String(Math.floor(Math.random()*9000)+1000);
+
+    // elements
+    const overlay = document.getElementById("overlay");
+    const startBtn = document.getElementById("startBtn");
+    const closeBtn = document.getElementById("closeBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const answerInput = document.getElementById("answerInput");
+    const questionText = document.getElementById("questionText");
+    const feedback = document.getElementById("feedback");
+    const stepLabel = document.getElementById("stepLabel");
+
+    const result = document.getElementById("result");
+    const letterEl = document.getElementById("letter");
+    const letterText = document.getElementById("letterText");
+
+    let step = 0;
+
+    function openModal(){
+      overlay.classList.add("show");
+      overlay.setAttribute("aria-hidden", "false");
+      feedback.textContent = "";
+      answerInput.value = "";
+      renderStep();
+      setTimeout(() => answerInput.focus(), 50);
+    }
+
+    function closeModal(){
+      overlay.classList.remove("show");
+      overlay.setAttribute("aria-hidden", "true");
+      feedback.textContent = "";
+      answerInput.value = "";
+    }
+
+    function renderStep(){
+      const q = QUESTIONS[step];
+      stepLabel.textContent = `Step ${step + 1} of ${QUESTIONS.length}`;
+      questionText.textContent = q.prompt;
+    }
+
+    function quip(){
+      const quips = [
+        "Hmm… that doesn’t sound like you.",
+        "The comic strip is unconvinced. Try again.",
+        "Nope. Close-ish energy, wrong timeline.",
+        "Incorrect! (But your confidence is cute.)"
+      ];
+      return quips[Math.floor(Math.random()*quips.length)];
+    }
+
+    function handleNext(){
+      const q = QUESTIONS[step];
+      const user = norm(answerInput.value);
+      const correct = user === norm(q.answer);
+
+      if (!correct){
+        feedback.innerHTML = `${quip()} <span class="stamp">Denied</span>`;
+        answerInput.select();
+        return;
+      }
+
+      feedback.innerHTML = `Okay… you’re you. <span class="stamp">Approved</span>`;
+
+      step++;
+      if (step >= QUESTIONS.length){
+        // success
+        closeModal();
+        result.innerHTML = `Access granted <span class="stamp">Approved</span>`;
+        letterText.textContent = LOVE_LETTER;
+        letterEl.classList.add("show");
+        typeIn(letterText, LOVE_LETTER, 9);
+        return;
+      }
+
+      // next step
+      answerInput.value = "";
+      feedback.textContent = "";
+      renderStep();
+      answerInput.focus();
+    }
+
+    function typeIn(el, fullText, speedMs){
+      el.textContent = "";
+      let i = 0;
+      const t = setInterval(() => {
+        el.textContent = fullText.slice(0, i++);
+        if (i > fullText.length) clearInterval(t);
+      }, Math.max(4, speedMs));
+    }
+
+    // events
+    startBtn.addEventListener("click", () => {
+      step = 0;
+      result.textContent = "";
+      letterEl.classList.remove("show");
+      openModal();
+    });
+
+    closeBtn.addEventListener("click", closeModal);
+
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) closeModal();
+    });
+
+    nextBtn.addEventListener("click", handleNext);
+
+    answerInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") handleNext();
+      if (e.key === "Escape") closeModal();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && overlay.classList.contains("show")) closeModal();
+    });
+  </script>
+</body>
+</html>
